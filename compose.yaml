@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      'POSTGRES_DB': '${DATABASE}'
+      'POSTGRES_PASSWORD': '${PASSWORD}'
+      'POSTGRES_USER': '${USERNAME}'
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+  api:
+    image: anibattle-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+volumes:
+  pgdata:
