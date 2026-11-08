@@ -1,0 +1,25 @@
+flowchart LR
+    apiEndpoint["API Endpoint"]
+    
+    getBattle("GET /battle/{id}<br>Get Battle")
+    createBattle(POST /battle<br>Create Battle)
+    getPair(GET /pair<br>Get Pair)
+    makeChoice(POST /choice<br>Make Choice)
+    getRating(GET /rating<br>Get Rating)
+
+    battleResponse[/Response:<br>Battle + Pool/]
+    pairResponse[/Response:<br>Character Pair/]
+    choiceResponse[/Response:<br>void/]
+    ratingResponse[/Response:<br>Rating/]
+
+    apiEndpoint --> getBattle
+    apiEndpoint --> createBattle
+    apiEndpoint --> getPair
+    apiEndpoint --> makeChoice
+    apiEndpoint --> getRating
+
+    getBattle --> battleResponse
+    createBattle --> battleResponse
+    getPair --> pairResponse
+    makeChoice --> choiceResponse
+    getRating --> ratingResponse

@@ -1,24 +1,46 @@
-create table if not exists public."Characters" (
-    "Id" uuid not null,
+create table public."Anime" (
+    "Id" uuid not null primary key,
+    "Name" text not null
+);
+
+create table public."Characters" (
+    "Id" uuid not null primary key,
     "Name" text not null,
-    "Elo" double precision not null,
-    constraint "PK_Characters" primary key ("Id")
+    "Elo" double precision not null default 1500,
+    "BattleCount" int not null default 0,
+    "AnimeId" uuid not null references public."Anime" ("Id") on delete restrict
 );
 
-create table if not exists public."Cards"(
-    "Id" uuid not null,
+create table public."Cards" (
+    "Id" uuid not null primary key,
     "ObjectKey" text not null,
-    "CreatedAt" timestamptz not null,
-    constraint "PK_Card" primary key ("Id")
+    "CreatedAt" timestamptz not null
 );
 
-create table if not exists public."CharacterCards" (
-    "Id" uuid not null,
-    "CardId" uuid not null,
-    "CharacterId" uuid not null,
-    constraint "PK_CharacterCard" primary key ("Id"),
-    constraint "FK_CharacterCards_Cards" foreign key ("CardId")
-            references public."Cards" ("Id") on delete restrict,
-    constraint "FK_CharacterCards_Characters" foreign key ("CharacterId")
-            references public."Characters" ("Id") on delete restrict
+create table public."CharacterCards" (
+    "Id" uuid not null primary key,
+    "CardId" uuid not null references public."Cards" ("Id") on delete restrict,
+    "CharacterId" uuid not null references public."Characters" ("Id") on delete restrict
+);
+
+create table public."Battles" (
+    "Id" uuid not null primary key,
+    "CreatedAt" timestamptz not null,
+    "ResolvedAt" timestamptz,
+    "RoundCount" int not null default 0
+);
+
+create table public."BattlePools" (
+    "Id" uuid not null primary key,
+    "BattleId" uuid not null references public."Battles" ("Id") on delete restrict,
+    "CharacterId" uuid not null references public."Characters" ("Id") on delete restrict
+);
+
+create table public."BattleMatches" (
+    "Id" uuid not null primary key,
+    "BattleId" uuid not null references public."Battles" ("Id") on delete restrict,
+    "Round" int not null,
+    "WinnerId" uuid not null references public."Characters" ("Id") on delete restrict,
+    "LoserId" uuid not null references public."Characters" ("Id") on delete restrict,
+    "CreatedAt" timestamptz not null
 );
