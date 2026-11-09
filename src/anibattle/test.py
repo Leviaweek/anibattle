@@ -1,22 +1,24 @@
+import asyncio
 import os
 
 import numpy
-from psycopg_pool import ConnectionPool
+from psycopg_pool import AsyncConnectionPool
 
 from anibattle.db.db_service import AsyncBattleRepository
 from anibattle.services.battle_service import get_next_pair, print_ratings
 
-if __name__ == "__main__":
+
+async def main():
     CONNECTION_URL = os.environ["CONNECTION_URL"]
 
-    with ConnectionPool(CONNECTION_URL) as pool, pool.connection() as connection:
+    async with AsyncConnectionPool(CONNECTION_URL, open=False) as pool, pool.connection() as connection:
         repository = AsyncBattleRepository(connection)
-        (battle, characters) = repository.create_battle_with_pool(32)
+        (battle, characters) = await repository.create_battle_with_pool(32)
 
         generator = numpy.random.default_rng(numpy.random.randint(0, 1000))
 
         for i in range(battle.round_count * (len(characters) // 2)):
-            context = repository.get_battle_details(battle.id)
+            context = await repository.get_battle_details(battle.id)
 
             if context is None:
                 raise RuntimeError("Battle not found")
@@ -31,11 +33,11 @@ if __name__ == "__main__":
 
             loser = candidate2 if winner == candidate1 else candidate1
 
-            match = repository.add_battle_match(
+            _ = await repository.add_battle_match(
                 battle.id, context.current_round, winner.id, loser.id
             )
 
-        context = repository.get_battle_details(battle.id)
+        context = await repository.get_battle_details(battle.id)
 
         if context is None:
             raise RuntimeError("Battle not found")
@@ -53,4 +55,8 @@ if __name__ == "__main__":
             delta = state.global_delta[character.id]
             print(f"{character.name}: {delta:+.2f}")
 
-        result = repository.resolve_battle(battle.id, state)
+        _ = await repository.resolve_battle(battle.id, state)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
