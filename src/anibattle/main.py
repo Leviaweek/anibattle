@@ -28,8 +28,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 app: FastAPI = FastAPI(lifespan=lifespan)
 router = APIRouter(prefix="/api")
 
-app.include_router(router)
-
 
 async def get_connection(request: Request) -> AsyncIterator[AsyncConnection]:
     request_app = cast(FastAPI, request.app)
@@ -107,3 +105,6 @@ async def get_battle(
         resolved_at=battle.resolved_at.isoformat() if battle.resolved_at else None,
         characters_pool=pool,
     )
+
+
+app.include_router(router)

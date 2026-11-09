@@ -17,7 +17,15 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
+
+DATABASE = os.environ["DATABASE"]
+PASSWORD = os.environ["PASSWORD"]
+USERNAME = os.environ["USERNAME"]
+HOST = os.environ["HOST"]
+PORT = os.environ["PORT"]
+DATABASE_URL = f"postgresql+psycopg://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 target_metadata = None
 
 # other values from the config, defined by the needs of env.py,

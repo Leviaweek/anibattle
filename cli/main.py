@@ -9,7 +9,12 @@ from anibattle.services.battle_service import get_next_pair
 
 
 async def main():
-    CONNECTION_URL = os.environ["CONNECTION_URL"]
+    DATABASE = os.environ["DATABASE"]
+    PASSWORD = os.environ["PASSWORD"]
+    USERNAME = os.environ["USERNAME"]
+    HOST = os.environ["HOST"]
+    PORT = os.environ["PORT"]
+    CONNECTION_URL = f"postgresql://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
     async with (
         AsyncConnectionPool(CONNECTION_URL, open=False) as pool,

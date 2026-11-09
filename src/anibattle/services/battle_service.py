@@ -184,7 +184,6 @@ def get_next_pair(
     return first, second
 
 
-@staticmethod
 def print_ratings(
     state: BattleState, characters: list[DbPoolCharacter], battle_id: UUID
 ) -> None:
