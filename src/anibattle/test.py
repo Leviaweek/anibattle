@@ -66,7 +66,7 @@ async def main():
             delta = state.global_delta[character.id]
             print(f"{character.name}: {delta:+.2f}")
 
-        _ = await repository.resolve_battle(battle.id, state)
+        _ = await repository.resolve_battle(battle.id, state.global_delta)
 
 
 if __name__ == "__main__":
