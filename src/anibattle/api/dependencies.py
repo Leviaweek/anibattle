@@ -31,9 +31,7 @@ def get_connection_url() -> str:
 async def lifespan(_: FastAPI) -> AsyncGenerator[AppState]:
     connection_url = get_connection_url()
 
-    async with AsyncConnectionPool(
-        connection_url, connection_class=AsyncConnection, open=False
-    ) as pool:
+    async with AsyncConnectionPool(connection_url, connection_class=AsyncConnection, open=False) as pool:
         yield {"pool": pool}
 
 
@@ -54,6 +52,4 @@ def get_battle_repository(
     return AsyncBattleRepository(connection)
 
 
-AsyncBattleRepositoryDep = Annotated[
-    AsyncBattleRepository, Depends(get_battle_repository)
-]
+AsyncBattleRepositoryDep = Annotated[AsyncBattleRepository, Depends(get_battle_repository)]

@@ -66,9 +66,7 @@ class BattleContext:
 
     def _get_elo_step(self, elo: dict[UUID, float]) -> MatchStep:
         def step(winner_id: UUID, loser_id: UUID) -> None:
-            elo[winner_id], elo[loser_id] = update_elo(
-                elo[winner_id], elo[loser_id], 1.0, k_factor=self.K
-            )
+            elo[winner_id], elo[loser_id] = update_elo(elo[winner_id], elo[loser_id], 1.0, k_factor=self.K)
 
         return step
 
@@ -99,9 +97,7 @@ class BattleContext:
     ) -> MatchStep:
         def step(winner_id: UUID, loser_id: UUID) -> None:
             winner_elo, loser_elo = start_elo[winner_id], start_elo[loser_id]
-            winner_new_elo, loser_new_elo = update_elo(
-                winner_elo, loser_elo, 1.0, k_factor=self.K
-            )
+            winner_new_elo, loser_new_elo = update_elo(winner_elo, loser_elo, 1.0, k_factor=self.K)
             deltas[winner_id] += winner_new_elo - winner_elo
             deltas[loser_id] += loser_new_elo - loser_elo
 
@@ -134,9 +130,7 @@ class BattleContext:
             elo=elo,
             played=played,
             opponents=opponents,
-            candidates=[
-                c for c in self.characters_pool if played[c.id] == self.current_round
-            ],
+            candidates=[c for c in self.characters_pool if played[c.id] == self.current_round],
             defeated=defeated,
             global_delta=global_delta,
         )
@@ -174,19 +168,13 @@ class BattleState:
         lines = [f"  {'Name':<{width}}  {'Elo':>7}  {'Played':>6}  Opponents"]
         for char_id in sorted(self.names, key=lambda i: -self.elo[i]):
             mark = "*" if char_id in candidate_ids else " "
-            opponents = ", ".join(
-                sorted(self.names[o] for o in self.opponents[char_id])
-            )
-            lines.append(
-                f"{mark} {self.names[char_id]:<{width}}  {self.elo[char_id]:>7.1f}  {self.played[char_id]:>6}  {opponents or '-'}"
-            )
+            opponents = ", ".join(sorted(self.names[o] for o in self.opponents[char_id]))
+            lines.append(f"{mark} {self.names[char_id]:<{width}}  {self.elo[char_id]:>7.1f}  {self.played[char_id]:>6}  {opponents or '-'}")
         lines.append("* - has not played in the current round yet")
         return "\n".join(lines)
 
 
-def get_next_pair(
-    battle_context: BattleContext, rng: Generator
-) -> tuple[DbPoolCharacter, DbPoolCharacter]:
+def get_next_pair(battle_context: BattleContext, rng: Generator) -> tuple[DbPoolCharacter, DbPoolCharacter]:
 
     state = battle_context.calculate_state()
 
@@ -204,9 +192,7 @@ def get_next_pair(
     return first, second
 
 
-def print_ratings(
-    state: BattleState, characters: list[DbPoolCharacter], battle_id: UUID
-) -> None:
+def print_ratings(state: BattleState, characters: list[DbPoolCharacter], battle_id: UUID) -> None:
     ranking = sorted(
         characters,
         key=lambda c: (
@@ -218,5 +204,8 @@ def print_ratings(
     )
     for place, c in enumerate(ranking, start=1):
         elo = round(state.elo[c.id], 2)
-        stats = f"Elo: {elo}, Buchholz: {buchholz(state.elo, state.opponents, c.id)}, Sonneborn-Berger: {sonneborn_berger(state.elo, state.defeated, c.id)}"
+        stats = (
+            f"Elo: {elo}, Buchholz: {buchholz(state.elo, state.opponents, c.id)}, "
+            + f"Sonneborn-Berger: {sonneborn_berger(state.elo, state.defeated, c.id)}"
+        )
         print(f"{place}. {c.name} ({stats})")

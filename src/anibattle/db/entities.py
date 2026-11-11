@@ -10,9 +10,7 @@ from anibattle.schemas.dtos import PoolCharacterDto
 
 
 class DbModel(BaseModel, frozen=True):
-    model_config: ClassVar[ConfigDict] = ConfigDict(
-        alias_generator=to_pascal, populate_by_name=True
-    )
+    model_config: ClassVar[ConfigDict] = ConfigDict(alias_generator=to_pascal, populate_by_name=True)
 
 
 class DbCharacter(DbModel, frozen=True):
@@ -23,13 +21,9 @@ class DbCharacter(DbModel, frozen=True):
     anime_id: UUID
 
 
-def create_character(
-    name: str, anime_id: UUID, elo: float = 1500.0, battle_count: int = 0
-) -> DbCharacter:
+def create_character(name: str, anime_id: UUID, elo: float = 1500.0, battle_count: int = 0) -> DbCharacter:
     id: UUID = uuid7()
-    return DbCharacter(
-        id=id, name=name, elo=elo, battle_count=battle_count, anime_id=anime_id
-    )
+    return DbCharacter(id=id, name=name, elo=elo, battle_count=battle_count, anime_id=anime_id)
 
 
 class DbCard(DbModel, frozen=True):
@@ -40,9 +34,7 @@ class DbCard(DbModel, frozen=True):
 
 def create_card(object_key: str):
     id: UUID = uuid7()
-    return DbCard(
-        id=id, object_key=object_key, created_at=datetime.datetime.now(datetime.UTC)
-    )
+    return DbCard(id=id, object_key=object_key, created_at=datetime.datetime.now(datetime.UTC))
 
 
 class DbCharacterCard(DbModel, frozen=True):
@@ -82,9 +74,7 @@ class DbBattleMatch(DbModel, frozen=True):
     created_at: datetime.datetime
 
 
-def create_battle_match(
-    battle_id: UUID, round: int, winner_id: UUID, loser_id: UUID
-) -> DbBattleMatch:
+def create_battle_match(battle_id: UUID, round: int, winner_id: UUID, loser_id: UUID) -> DbBattleMatch:
     id: UUID = uuid7()
     return DbBattleMatch(
         id=id,
@@ -121,9 +111,7 @@ class DbPoolCharacter(DbModel, frozen=True):
         )
 
 
-def create_pool_character(
-    id: UUID, name: str, anime_id: UUID, cached_elo: float = 1500.0
-) -> DbPoolCharacter:
+def create_pool_character(id: UUID, name: str, anime_id: UUID, cached_elo: float = 1500.0) -> DbPoolCharacter:
     return DbPoolCharacter(id=id, name=name, cached_elo=cached_elo, anime_id=anime_id)
 
 

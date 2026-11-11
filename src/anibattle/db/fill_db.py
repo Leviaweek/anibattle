@@ -29,9 +29,7 @@ class AnimeDto(DbModel, frozen=True):
 SEED_PATH = Path(__file__).resolve().parents[3] / "seed.json"
 
 if __name__ == "__main__":
-    anime_list = TypeAdapter(list[AnimeDto]).validate_json(
-        SEED_PATH.read_text(encoding="utf-8")
-    )
+    anime_list = TypeAdapter(list[AnimeDto]).validate_json(SEED_PATH.read_text(encoding="utf-8"))
 
     DATABASE = os.environ["DATABASE"]
     PASSWORD = os.environ["PASSWORD"]
@@ -60,9 +58,5 @@ if __name__ == "__main__":
             values (%s, %s, %s)
             on conflict ("Id") do nothing
             """,
-            [
-                (character.id, character.name, anime.id)
-                for anime in anime_list
-                for character in anime.characters
-            ],
+            [(character.id, character.name, anime.id) for anime in anime_list for character in anime.characters],
         )

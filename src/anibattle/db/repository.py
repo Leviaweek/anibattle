@@ -53,9 +53,7 @@ class AsyncBattleRepository:
         return row
 
     async def get_characters_pool(self, battle_id: UUID) -> list[DbPoolCharacter]:
-        async with self.connection.cursor(
-            row_factory=class_row(DbPoolCharacter)
-        ) as cur:
+        async with self.connection.cursor(row_factory=class_row(DbPoolCharacter)) as cur:
             _ = await cur.execute(
                 """
                     select c."Id", c."Name", bp."CachedElo", c."AnimeId"
@@ -111,31 +109,21 @@ class AsyncBattleRepository:
                     insert into public."BattlePools" ("Id", "BattleId", "CharacterId", "CachedElo")
                     values (%s, %s, %s, %s)
                 """,
-                [
-                    (uuid7(), battle_id, character.id, character.elo)
-                    for character in pool
-                ],
+                [(uuid7(), battle_id, character.id, character.elo) for character in pool],
             )
 
-    async def create_battle_with_pool(
-        self, pool_size: int, round_count: int
-    ) -> tuple[DbBattle, list[DbPoolCharacter]]:
+    async def create_battle_with_pool(self, pool_size: int, round_count: int) -> tuple[DbBattle, list[DbPoolCharacter]]:
         async with self.connection.transaction():
             characters_pool = await self.create_characters_pool(pool_size)
 
             if len(characters_pool) < 2 or len(characters_pool) % 2 != 0:
-                raise ValueError(
-                    "The number of characters must be even and at least 2."
-                )
+                raise ValueError("The number of characters must be even and at least 2.")
 
             battle = await self.create_battle(round_count)
 
             await self.fill_pool(characters_pool, battle.id)
 
-            db_characters_pool = [
-                create_pool_character(c.id, c.name, c.anime_id, c.elo)
-                for c in characters_pool
-            ]
+            db_characters_pool = [create_pool_character(c.id, c.name, c.anime_id, c.elo) for c in characters_pool]
 
         return (battle, db_characters_pool)
 
@@ -215,9 +203,7 @@ class AsyncBattleRepository:
             return None
         return row
 
-    async def resolve_battle(
-        self, battle_id: UUID, global_delta: Mapping[UUID, float]
-    ) -> bool:
+    async def resolve_battle(self, battle_id: UUID, global_delta: Mapping[UUID, float]) -> bool:
         async with self.connection.transaction(), self.connection.cursor() as cur:
             _ = await cur.execute(
                 """

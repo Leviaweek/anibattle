@@ -43,13 +43,9 @@ def tiebreak(battle_id: UUID, character_id: UUID) -> bytes:
     return hashlib.sha256(f"{battle_id}:{character_id}".encode()).digest()
 
 
-def buchholz(
-    elo: dict[UUID, float], opponents: dict[UUID, set[UUID]], character_id: UUID
-) -> float:
+def buchholz(elo: dict[UUID, float], opponents: dict[UUID, set[UUID]], character_id: UUID) -> float:
     return sum(elo[opponent_id] for opponent_id in opponents[character_id])
 
 
-def sonneborn_berger(
-    elo: dict[UUID, float], defeated: dict[UUID, set[UUID]], character_id: UUID
-) -> float:
+def sonneborn_berger(elo: dict[UUID, float], defeated: dict[UUID, set[UUID]], character_id: UUID) -> float:
     return sum(elo[opponent_id] for opponent_id in defeated[character_id])

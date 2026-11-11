@@ -22,13 +22,11 @@ async def main():
         repository = AsyncBattleRepository(connection)
         MATCH_COUNT = 32
         round_count = BattleContext.calculate_round_count(MATCH_COUNT)
-        (battle, characters) = await repository.create_battle_with_pool(
-            MATCH_COUNT, round_count
-        )
+        (battle, characters) = await repository.create_battle_with_pool(MATCH_COUNT, round_count)
 
         generator = numpy.random.default_rng(numpy.random.randint(0, 1000))
 
-        for i in range(battle.round_count * (len(characters) // 2)):
+        for _i in range(battle.round_count * (len(characters) // 2)):
             details = await repository.get_battle_details(battle.id)
 
             if details is None:
@@ -46,9 +44,7 @@ async def main():
 
             loser = candidate2 if winner == candidate1 else candidate1
 
-            _ = await repository.add_battle_match(
-                battle.id, context.current_round, winner.id, loser.id
-            )
+            _ = await repository.add_battle_match(battle.id, context.current_round, winner.id, loser.id)
 
         details = await repository.get_battle_details(battle.id)
 
