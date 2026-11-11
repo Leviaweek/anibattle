@@ -1,12 +1,13 @@
+from datetime import datetime
 from uuid import UUID
 
-from anibattle.models.dto import Dto, PoolCharacterDto
+from anibattle.schemas.dtos import Dto, PoolCharacterDto
 
 
 class GetBattleResponse(Dto, frozen=True):
     battle_id: UUID
     round_count: int
-    resolved_at: str | None = None
+    resolved_at: datetime | None = None
     characters_pool: list[PoolCharacterDto]
 
 

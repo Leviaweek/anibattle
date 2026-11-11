@@ -4,13 +4,13 @@ from fastapi import APIRouter, HTTPException, status
 
 from anibattle.api.battles.schemas import GetBattleNotFoundResponse, GetBattleResponse
 from anibattle.api.dependencies import AsyncBattleRepositoryDep
-from anibattle.db.database_entities import DbBattle
+from anibattle.db.entities import DbBattle
 
 router = APIRouter(prefix="/api/battle")
 
 
 @router.get(
-    "/battle/{battle_id}",
+    "/{battle_id}",
     status_code=status.HTTP_200_OK,
     response_model=GetBattleResponse,
     responses={404: {"model": GetBattleNotFoundResponse}},
@@ -32,6 +32,6 @@ async def get_battle(
     return GetBattleResponse(
         battle_id=battle.id,
         round_count=battle.round_count,
-        resolved_at=battle.resolved_at.isoformat() if battle.resolved_at else None,
+        resolved_at=battle.resolved_at if battle.resolved_at else None,
         characters_pool=dtos_pool,
     )

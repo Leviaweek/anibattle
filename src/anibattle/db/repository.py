@@ -1,11 +1,11 @@
+from collections.abc import Mapping
 from datetime import UTC, datetime
-from math import ceil, log2
 from uuid import UUID, uuid7
 
 from psycopg import AsyncConnection
 from psycopg.rows import TupleRow, class_row
 
-from anibattle.db.database_entities import (
+from anibattle.db.entities import (
     DbBattle,
     DbBattleDetails,
     DbBattleMatch,
@@ -15,7 +15,6 @@ from anibattle.db.database_entities import (
     create_dbbattle,
     create_pool_character,
 )
-from anibattle.services.battle_service import BattleState
 
 
 class AsyncBattleRepository:
@@ -119,7 +118,7 @@ class AsyncBattleRepository:
             )
 
     async def create_battle_with_pool(
-        self, pool_size: int
+        self, pool_size: int, round_count: int
     ) -> tuple[DbBattle, list[DbPoolCharacter]]:
         async with self.connection.transaction():
             characters_pool = await self.create_characters_pool(pool_size)
@@ -128,8 +127,6 @@ class AsyncBattleRepository:
                 raise ValueError(
                     "The number of characters must be even and at least 2."
                 )
-
-            round_count = ceil(log2(len(characters_pool)))
 
             battle = await self.create_battle(round_count)
 
@@ -218,10 +215,9 @@ class AsyncBattleRepository:
             return None
         return row
 
-    async def resolve_battle(self, battle_id: UUID, state: BattleState) -> bool:
-        if state.global_delta is None:
-            raise RuntimeError("Global deltas were not calculated.")
-
+    async def resolve_battle(
+        self, battle_id: UUID, global_delta: Mapping[UUID, float]
+    ) -> bool:
         async with self.connection.transaction(), self.connection.cursor() as cur:
             _ = await cur.execute(
                 """
@@ -240,6 +236,6 @@ class AsyncBattleRepository:
                     set "Elo" = "Elo" + %s, "BattleCount" = "BattleCount" + 1
                     where "Id" = %s
                 """,
-                [(delta, cid) for cid, delta in sorted(state.global_delta.items())],
+                [(delta, cid) for cid, delta in sorted(global_delta.items())],
             )
         return True

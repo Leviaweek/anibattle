@@ -15,3 +15,6 @@ wheels/
 .vscode/
 .zed/
 *.ipynb
+
+*.md
+!README.md

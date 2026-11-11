@@ -17,18 +17,22 @@ class AppState(TypedDict):
     pool: Pool
 
 
-DATABASE = os.environ["DATABASE"]
-PASSWORD = os.environ["PASSWORD"]
-USERNAME = os.environ["USERNAME"]
-HOST = os.environ["HOST"]
-PORT = os.environ["PORT"]
-CONNECTION_URL = f"postgresql://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+def get_connection_url() -> str:
+    DATABASE = os.environ["DATABASE"]
+    PASSWORD = os.environ["PASSWORD"]
+    USERNAME = os.environ["USERNAME"]
+    HOST = os.environ["HOST"]
+    PORT = os.environ["PORT"]
+
+    return f"postgresql://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[AppState]:
+    connection_url = get_connection_url()
+
     async with AsyncConnectionPool(
-        CONNECTION_URL, connection_class=AsyncConnection, open=False
+        connection_url, connection_class=AsyncConnection, open=False
     ) as pool:
         yield {"pool": pool}
 

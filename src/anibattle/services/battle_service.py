@@ -1,16 +1,17 @@
 from collections.abc import Callable
 from dataclasses import dataclass
+from math import ceil, log2
 from typing import final, override
 from uuid import UUID
 
 from numpy.random import Generator
 
-from anibattle.db.database_entities import (
+from anibattle.db.entities import (
     DbBattleDetails,
     DbBattleMatch,
     DbPoolCharacter,
 )
-from anibattle.models.calculations import (
+from anibattle.schemas.calculations import (
     buchholz,
     sonneborn_berger,
     tiebreak,
@@ -56,6 +57,12 @@ class BattleContext:
     @property
     def current_round(self) -> int:
         return len(self.battles) // (len(self.characters_pool) // 2)
+
+    @staticmethod
+    def calculate_round_count(pool_size: int) -> int:
+        if pool_size < 2 or pool_size % 2 != 0:
+            raise ValueError("The number of characters must be even and at least 2.")
+        return ceil(log2(pool_size))
 
     def _get_elo_step(self, elo: dict[UUID, float]) -> MatchStep:
         def step(winner_id: UUID, loser_id: UUID) -> None:

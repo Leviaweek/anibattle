@@ -1,11 +1,9 @@
-import datetime
+from datetime import datetime
 from typing import ClassVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
-
-type Noneble[T] = T | None
 
 
 class Dto(BaseModel, frozen=True):
@@ -29,7 +27,7 @@ class CardDto(Dto, frozen=True):
 class BattleDto(Dto, frozen=True):
     id: UUID
     round_count: int
-    resolved_at: Noneble[datetime.datetime]
+    resolved_at: datetime | None
 
 
 class BattleMatchDto(Dto, frozen=True):
@@ -38,7 +36,7 @@ class BattleMatchDto(Dto, frozen=True):
     round: int
     winner_id: UUID
     loser_id: UUID
-    created_at: datetime.datetime
+    created_at: datetime
 
 
 class AnimeDto(Dto, frozen=True):

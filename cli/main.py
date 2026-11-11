@@ -22,7 +22,9 @@ async def main():
     ):
         repository = AsyncBattleRepository(conn)
 
-        (battle, _) = await repository.create_battle_with_pool(32)
+        MATCH_COUNT = 32
+        round_count = BattleContext.calculate_round_count(MATCH_COUNT)
+        (battle, _) = await repository.create_battle_with_pool(MATCH_COUNT, round_count)
         SEED = 42
         rng = random.default_rng(SEED)
 

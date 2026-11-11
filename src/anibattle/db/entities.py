@@ -6,7 +6,7 @@ from uuid import UUID, uuid7
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_pascal
 
-from anibattle.models.dto import PoolCharacterDto
+from anibattle.schemas.dtos import PoolCharacterDto
 
 
 class DbModel(BaseModel, frozen=True):

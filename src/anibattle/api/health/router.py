@@ -6,7 +6,7 @@ router = APIRouter(prefix="/api/health")
 
 
 @router.get(
-    "/",
+    "",
     response_model=HealthCheckResponse,
     status_code=status.HTTP_200_OK,
     summary="Health check endpoint",

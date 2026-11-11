@@ -1,6 +1,6 @@
 import pytest
 
-from anibattle.models.calculations import update_elo
+from anibattle.schemas.calculations import update_elo
 
 
 @pytest.mark.parametrize(

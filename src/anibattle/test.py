@@ -20,7 +20,11 @@ async def main():
         pool.connection() as connection,
     ):
         repository = AsyncBattleRepository(connection)
-        (battle, characters) = await repository.create_battle_with_pool(32)
+        MATCH_COUNT = 32
+        round_count = BattleContext.calculate_round_count(MATCH_COUNT)
+        (battle, characters) = await repository.create_battle_with_pool(
+            MATCH_COUNT, round_count
+        )
 
         generator = numpy.random.default_rng(numpy.random.randint(0, 1000))
 
