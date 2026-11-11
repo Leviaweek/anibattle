@@ -5,7 +5,11 @@ from uuid import UUID
 
 from numpy.random import Generator
 
-from anibattle.db.database_entities import DbBattleMatch, DbPoolCharacter
+from anibattle.db.database_entities import (
+    DbBattleDetails,
+    DbBattleMatch,
+    DbPoolCharacter,
+)
 from anibattle.models.calculations import (
     buchholz,
     sonneborn_berger,
@@ -31,6 +35,15 @@ class BattleContext:
         self.battles: list[DbBattleMatch] = battles
         self.round_count: int = round_count
         self.battle_id: UUID = id
+
+    @staticmethod
+    def from_details(details: DbBattleDetails) -> BattleContext:
+        return BattleContext(
+            id=details.battle.id,
+            characters_pool=details.pool,
+            battles=details.matches,
+            round_count=details.battle.round_count,
+        )
 
     @property
     def total_matches(self) -> int:

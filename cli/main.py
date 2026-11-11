@@ -4,8 +4,8 @@ import os
 from numpy import random
 from psycopg_pool import AsyncConnectionPool
 
-from anibattle.db.db_service import AsyncBattleRepository
-from anibattle.services.battle_service import get_next_pair
+from anibattle.db.repository import AsyncBattleRepository
+from anibattle.services.battle_service import BattleContext, get_next_pair
 
 
 async def main():
@@ -27,10 +27,12 @@ async def main():
         rng = random.default_rng(SEED)
 
         for _ in range(32):
-            context = await repository.get_battle_details(battle.id)
+            details = await repository.get_battle_details(battle.id)
 
-            if context is None:
+            if details is None:
                 raise RuntimeError("Battle not found")
+
+            context = BattleContext.from_details(details)
 
             pair = get_next_pair(context, rng)
             print(f"Next pair: {pair[0].name} vs {pair[1].name}")
@@ -45,10 +47,12 @@ async def main():
                 pair[1 - choice].id,
             )
 
-        context = await repository.get_battle_details(battle.id)
+        details = await repository.get_battle_details(battle.id)
 
-        if context is None:
+        if details is None:
             raise RuntimeError("Battle not found")
+
+        context = BattleContext.from_details(details)
 
         state = context.calculate_final_state()
         print(state)

@@ -1,4 +1,5 @@
 import datetime
+from dataclasses import dataclass
 from typing import ClassVar
 from uuid import UUID, uuid7
 
@@ -114,3 +115,10 @@ def create_pool_character(
     id: UUID, name: str, anime_id: UUID, cached_elo: float = 1500.0
 ) -> DbPoolCharacter:
     return DbPoolCharacter(id=id, name=name, cached_elo=cached_elo, anime_id=anime_id)
+
+
+@dataclass(frozen=True, slots=True)
+class DbBattleDetails:
+    battle: DbBattle
+    pool: list[DbPoolCharacter]
+    matches: list[DbBattleMatch]

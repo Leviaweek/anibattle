@@ -1,41 +1,47 @@
 import os
 from collections.abc import AsyncGenerator, AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Annotated, Literal, cast
+from typing import Annotated, Literal, TypedDict, cast
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, status
 from psycopg import AsyncConnection
+from psycopg.rows import TupleRow
 from psycopg_pool import AsyncConnectionPool
 from pydantic import BaseModel
 
 from anibattle.db.database_entities import DbBattle, DbPoolCharacter
-from anibattle.db.db_service import AsyncBattleRepository
+from anibattle.db.repository import AsyncBattleRepository
 
 type ServiceStatus = Literal["ok", "error"]
+type Pool = AsyncConnectionPool[AsyncConnection[TupleRow]]
 
 CONNECTION_URL = os.environ["CONNECTION_URL"]
 
 
+class AppState(TypedDict):
+    pool: Pool
+
+
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-    async with AsyncConnectionPool(CONNECTION_URL, open=False) as pool:
-        await pool.wait()
-        app.state.pool = pool
-        yield
+async def lifespan(app: FastAPI) -> AsyncGenerator[AppState]:
+    async with AsyncConnectionPool(
+        CONNECTION_URL, connection_class=AsyncConnection, open=False
+    ) as pool:
+        yield {"pool": pool}
 
 
 app: FastAPI = FastAPI(lifespan=lifespan)
 router = APIRouter(prefix="/api")
 
 
+async def get_pool(request: Request) -> Pool:
+    state = cast("Request[AppState]", request).state
+    return state["pool"]
+
+
 async def get_connection(request: Request) -> AsyncIterator[AsyncConnection]:
-    request_app = cast(FastAPI, request.app)
-
-    state = cast(dict[str, AsyncConnectionPool], request_app.state.__dict__)
-
-    pool = state["pool"]
-
+    pool = await get_pool(request)
     async with pool.connection() as connection:
         yield connection
 

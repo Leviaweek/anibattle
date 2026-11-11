@@ -7,6 +7,7 @@ from psycopg.rows import TupleRow, class_row
 
 from anibattle.db.database_entities import (
     DbBattle,
+    DbBattleDetails,
     DbBattleMatch,
     DbCharacter,
     DbPoolCharacter,
@@ -14,7 +15,7 @@ from anibattle.db.database_entities import (
     create_dbbattle,
     create_pool_character,
 )
-from anibattle.services.battle_service import BattleContext, BattleState
+from anibattle.services.battle_service import BattleState
 
 
 class AsyncBattleRepository:
@@ -141,7 +142,7 @@ class AsyncBattleRepository:
 
         return (battle, db_characters_pool)
 
-    async def get_battle_details(self, battle_id: UUID) -> BattleContext | None:
+    async def get_battle_details(self, battle_id: UUID) -> DbBattleDetails | None:
         async with (
             self.connection.cursor(row_factory=class_row(DbBattle)) as battle_cur,
             self.connection.cursor(row_factory=class_row(DbPoolCharacter)) as pool_cur,
@@ -183,7 +184,7 @@ class AsyncBattleRepository:
             pool = await pool_cur.fetchall()
             matches = await matches_cur.fetchall()
 
-        return BattleContext(battle.id, pool, matches, battle.round_count)
+        return DbBattleDetails(battle, pool, matches)
 
     async def add_battle_match(
         self,

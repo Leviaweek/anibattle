@@ -4,24 +4,33 @@ import os
 import numpy
 from psycopg_pool import AsyncConnectionPool
 
-from anibattle.db.db_service import AsyncBattleRepository
-from anibattle.services.battle_service import get_next_pair, print_ratings
+from anibattle.db.repository import AsyncBattleRepository
+from anibattle.services.battle_service import (
+    BattleContext,
+    get_next_pair,
+    print_ratings,
+)
 
 
 async def main():
     CONNECTION_URL = os.environ["CONNECTION_URL"]
 
-    async with AsyncConnectionPool(CONNECTION_URL, open=False) as pool, pool.connection() as connection:
+    async with (
+        AsyncConnectionPool(CONNECTION_URL, open=False) as pool,
+        pool.connection() as connection,
+    ):
         repository = AsyncBattleRepository(connection)
         (battle, characters) = await repository.create_battle_with_pool(32)
 
         generator = numpy.random.default_rng(numpy.random.randint(0, 1000))
 
         for i in range(battle.round_count * (len(characters) // 2)):
-            context = await repository.get_battle_details(battle.id)
+            details = await repository.get_battle_details(battle.id)
 
-            if context is None:
+            if details is None:
                 raise RuntimeError("Battle not found")
+
+            context = BattleContext.from_details(details)
 
             state = context.calculate_state()
 
@@ -37,10 +46,12 @@ async def main():
                 battle.id, context.current_round, winner.id, loser.id
             )
 
-        context = await repository.get_battle_details(battle.id)
+        details = await repository.get_battle_details(battle.id)
 
-        if context is None:
+        if details is None:
             raise RuntimeError("Battle not found")
+
+        context = BattleContext.from_details(details)
 
         state = context.calculate_final_state()
 

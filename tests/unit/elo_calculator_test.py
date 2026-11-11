@@ -4,7 +4,7 @@ from anibattle.models.calculations import update_elo
 
 
 @pytest.mark.parametrize(
-    "a, b, actual_a, delta",
+    "elos, actual_a, delta",
     [
         ((1000.0, 1000.0), 1.0, 10),
         ((1000.0, 1000.0), 0.5, 0),
