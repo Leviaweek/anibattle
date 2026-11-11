@@ -6,6 +6,8 @@ from uuid import UUID, uuid7
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_pascal
 
+from anibattle.models.dto import PoolCharacterDto
+
 
 class DbModel(BaseModel, frozen=True):
     model_config: ClassVar[ConfigDict] = ConfigDict(
@@ -109,6 +111,14 @@ class DbPoolCharacter(DbModel, frozen=True):
     name: str
     cached_elo: float
     anime_id: UUID
+
+    def to_dto(self) -> PoolCharacterDto:
+        return PoolCharacterDto(
+            id=self.id,
+            name=self.name,
+            cached_elo=self.cached_elo,
+            anime_id=self.anime_id,
+        )
 
 
 def create_pool_character(
