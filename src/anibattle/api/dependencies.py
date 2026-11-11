@@ -35,13 +35,13 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[AppState]:
         yield {"pool": pool}
 
 
-async def get_pool(request: Request) -> Pool:
+def get_pool(request: Request) -> Pool:
     state = cast("Request[AppState]", request).state
     return state["pool"]
 
 
 async def get_connection(request: Request) -> AsyncIterator[AsyncConnection]:
-    pool = await get_pool(request)
+    pool = get_pool(request)
     async with pool.connection() as connection:
         yield connection
 

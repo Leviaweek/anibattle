@@ -29,6 +29,6 @@ async def get_battle(battle_id: UUID, repository: AsyncBattleRepositoryDep) -> G
     return GetBattleResponse(
         battle_id=battle.id,
         round_count=battle.round_count,
-        resolved_at=battle.resolved_at if battle.resolved_at else None,
+        resolved_at=battle.resolved_at,
         characters_pool=dtos_pool,
     )
